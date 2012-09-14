@@ -1,0 +1,22 @@
+From Blog
+
+How to Create a Consistent Liferay Backup
+5/28/12 7:30 PM
+
+This is a question I've gotten asked in nearly all the Liferay System Administrator trainings I've given.
+
+Most people will just backup their database and Liferay data directory separately but any competent system
+admin will tell you that it's not guaranteed to be consistent because someone could upload or delete files
+between the time you took the database dump and the time you copied the data directory. Now I'm assuming
+that you are storing your document library binaries to filesystem instead of database.
+
+Now to achieve a consistent backup with minimal interruption to your portal what you need to do is get a
+read lock on all your Liferay tables. This will prevent writes to the database. Then you dump the database
+to file with a tool like mysqldump and then you take a quick snapshot of the filesystem before you unlock
+the tables. You need to keep the connection that locked the tables open until this whole process is done.
+Once you have the database dump and filesystem snapshot ready only then you can release the lock and then
+you can backup the data directory using what ever method you would normally use.
+
+For the PoC I'm using MySQL and my filesystem is on Linux LVM volume which supports taking snapshots. I've
+written a Perl script to execute all the commands. I'm sharing the script under GPL and it's available in 
+Github.
